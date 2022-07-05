@@ -7,6 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { AddTodo } from "../components/AddTodo";
+import { TodoList } from "../components/TodoList";
 import Background from "../assets/bg-desktop-light.jpg";
 
 const ColorModeContext = createContext({ toggleColorMode: () => {} });
@@ -36,7 +37,7 @@ export const Home = () => {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline>
-          <Container id="app" maxWidth="false" disableGutters="true">
+          <Container id="app" maxWidth="false" disableGutters={true}>
             <Box
               component="header"
               sx={{
@@ -89,6 +90,12 @@ export const Home = () => {
               sx={{ position: "relative", bottom: "100px" }}
             >
               <AddTodo />
+            </Box>
+            <Box
+              component="section"
+              sx={{ position: "relative", bottom: "100px" }}
+            >
+              <TodoList />
             </Box>
           </Container>
         </CssBaseline>

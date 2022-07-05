@@ -3,7 +3,7 @@ import ButtonUnstyled, {
   buttonUnstyledClasses,
 } from "@mui/base/ButtonUnstyled";
 import { styled } from "@mui/system";
-
+import TodoApi from "../apis/Todo.api";
 import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -22,10 +22,23 @@ const AddTodo = styled(ButtonUnstyled)`
   }
 `;
 
-export const AddButton = ({todo}) => {
+export const AddButton = ({ todo }) => {
+  const handleSubmitTodo = async (e) => {
+    e.preventDefault();
+    if (!todo) {
+      return;
+    }
+    const newTodo = await TodoApi.post("/", {
+      description: todo,
+    });
+    console.log(newTodo);
+  };
   return (
     <AddTodo>
-      <AddIcon sx={{ color: "#ffffff", width: "20px", height: "20px" }} />
+      <AddIcon
+        onClick={handleSubmitTodo}
+        sx={{ color: "#ffffff", width: "20px", height: "20px" }}
+      />
     </AddTodo>
   );
 };

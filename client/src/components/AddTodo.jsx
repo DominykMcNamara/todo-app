@@ -4,20 +4,24 @@ import { Box } from "@mui/material";
 import { Container } from "@mui/system";
 import {AddButton} from "./AddButton";
 
+
 export const AddTodo = () => {
     const [currentTodo, setCurrentTodo] = useState(" ")
   const handleTodoChange = (e) => {
+    e.preventDefault()
     setCurrentTodo(e.target.value)
   }
+
+
   return (
-    <Container maxWidth="sm"  disableGutters="true" sx={{
+    <Container maxWidth="sm"  disableGutters={true} sx={{
       display: "flex",
       alignItems: "center",
       justifyContent: "center"
     }}>
       <Input
       
-        disableUnderline="true"
+        disableUnderline={true}
         placeholder="Create a new todo..."
         startAdornment={<AddButton todo={currentTodo} />}
         value={currentTodo}
