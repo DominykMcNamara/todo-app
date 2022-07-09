@@ -4,7 +4,6 @@ import ButtonUnstyled, {
 } from "@mui/base/ButtonUnstyled";
 import { styled } from "@mui/system";
 import TodoApi from "../apis/Todo.api";
-import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
 
 const AddTodo = styled(ButtonUnstyled)`
@@ -25,7 +24,7 @@ const AddTodo = styled(ButtonUnstyled)`
 export const AddButton = ({ todo }) => {
   const handleSubmitTodo = async (e) => {
     e.preventDefault();
-    if (!todo) {
+    if (todo.length === 0) {
       return;
     }
     const newTodo = await TodoApi.post("/", {

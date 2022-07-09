@@ -48,11 +48,40 @@ const router = new Router();
 router.get("/", async (req, res) => {
   try {
     const todoList = await db.query("SELECT * FROM todos");
+    const activeTodos = await db.query(
+      "SELECT * FROM todos WHERE completed = false"
+    );
+    const completedTodos = await db.query(
+      "SELECT * FROM todos WHERE completed = true"
+    );
+
     res.status(200).json({
       status: "success",
-      results: todoList.rows,
+      results: todoList.rows.length,
+      data: {
+        todos: todoList.rows,
+        activeTodos: activeTodos.rows,
+        completedTodos: completedTodos.rows,
+      },
     });
-    console.log(todoList);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.get("/completed", async (req, res) => {
+  try {
+    const numberOfIncompletedTodos = await db.query(
+      "SELECT COUNT(*) FROM todos WHERE completed = false "
+    );
+    res.status(200).json({
+      status: "success",
+      results: numberOfIncompletedTodos.rows.length,
+      data: {
+        numberOfIncompletedTodos: numberOfIncompletedTodos.rows[0].count,
+      },
+    });
+    console.log(numberOfIncompletedTodos);
   } catch (err) {
     console.log(err);
   }
@@ -113,6 +142,38 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/v1/todos:
+ *   get:
+ *     summary: Get all todos
+ *     tags: [Todos]
+ *
+ *     responses:
+ *       200:
+ *          description: A list of todos.
+ *          content:
+ *            application/json:
+ *              schema:
+ *              type: object
+ *              properties:
+ *                id:
+ *                  type: integer
+ *                  description: The  ID of a todo.
+ *                  example: 1
+ *                description:
+ *                  type: string
+ *                  description: The description of the todo.
+ *                  example: Tomato
+ *                completed:
+ *                  type: boolean
+ *                  description: Describes if a todo is complete or not.
+ *                  example: true
+ *
+ *       404:
+ *          description: Not found.
+ */
+
 // Post routes
 /**
  * @swagger
@@ -170,6 +231,9 @@ router.post("/", async (req, res) => {
     const newTodo = await db.query(
       "INSERT INTO todos (description) VALUES ($1) RETURNING *",
       [req.body.description]
+    );
+    const numberOfIncompleteTodos = await db.query(
+      "SELECT COUNT(*) FROM todos WHERE completed = false"
     );
     res.status(201).json({
       status: "success",
@@ -245,8 +309,8 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const updatedTodo = await db.query(
-      "UPDATE todos SET description = $1, completed = $2 WHERE id = $3 RETURNING *",
-      [req.body.description, req.body.completed, req.params.id]
+      "UPDATE todos SET  completed = $1 WHERE id = $2 RETURNING *",
+      [true, req.params.id]
     );
     res.status(200).json({
       status: "success",
@@ -292,6 +356,37 @@ router.delete("/:id", async (req, res) => {
       status: "success",
       data: {
         todo: deletedTodo.rows[0],
+      },
+    });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+/**
+ * @swagger
+ * /todos/:
+ *   delete:
+ *    summary: Delete completed todos
+ *    tags: [Todos]
+ *
+ *    responses:
+ *      201:
+ *          description: Todos successfully deleted.
+ *
+ *      400:
+ *          description: Todo cannot be found.
+ */
+
+router.delete("/", async (req, res) => {
+  try {
+    const deletedTodos = await db.query(
+      "DELETE FROM todos WHERE completed = true RETURNING *"
+    );
+    res.status(201).json({
+      status: "success",
+      data: {
+        todo: deletedTodos.rows,
       },
     });
   } catch (err) {

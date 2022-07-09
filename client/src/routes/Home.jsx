@@ -31,8 +31,10 @@ export const Home = () => {
         setMode((prevMode) => (prevMode === "dark" ? "light" : "dark"));
       },
     }),
-    []
-  );
+    [] 
+  ); 
+
+  
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
