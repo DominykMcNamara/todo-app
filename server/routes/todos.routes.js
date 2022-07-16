@@ -48,26 +48,20 @@ const router = new Router();
 router.get("/", async (req, res) => {
   try {
     const todoList = await db.query("SELECT * FROM todos");
-    const activeTodos = await db.query(
-      "SELECT * FROM todos WHERE completed = false"
-    );
-    const completedTodos = await db.query(
-      "SELECT * FROM todos WHERE completed = true"
-    );
 
     res.status(200).json({
       status: "success",
       results: todoList.rows.length,
       data: {
         todos: todoList.rows,
-        activeTodos: activeTodos.rows,
-        completedTodos: completedTodos.rows,
       },
     });
   } catch (err) {
     console.log(err);
   }
 });
+
+
 
 router.get("/completed", async (req, res) => {
   try {

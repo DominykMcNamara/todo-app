@@ -5,7 +5,7 @@ import ButtonUnstyled, {
 import { styled } from "@mui/system";
 import TodoApi from "../apis/Todo.api";
 import AddIcon from "@mui/icons-material/Add";
-
+import { useTheme } from "@mui/material";
 const AddTodo = styled(ButtonUnstyled)`
   border: 1px solid #e3e4f1;
   height: 24px;
@@ -22,21 +22,23 @@ const AddTodo = styled(ButtonUnstyled)`
 `;
 
 export const AddButton = ({ todo }) => {
+  const theme = useTheme()
   const handleSubmitTodo = async (e) => {
     e.preventDefault();
-    if (todo.length === 0) {
-      return;
+    const trimmedTodo = todo.trim()
+    if (trimmedTodo.length === 0) {
+      return
     }
     const newTodo = await TodoApi.post("/", {
-      description: todo,
+      description: trimmedTodo,
     });
     console.log(newTodo);
   };
   return (
-    <AddTodo>
+    <AddTodo disabled={todo ? false : true} sx={{backgroundColor: theme.palette.common.white, borderColor: theme.palette.info.main}}>
       <AddIcon
-        onClick={handleSubmitTodo}
-        sx={{ color: "#ffffff", width: "20px", height: "20px" }}
+        onClick={(e) => handleSubmitTodo(e)}
+        sx={{ color: theme.palette.common.white, width: "20px", height: "20px" }}
       />
     </AddTodo>
   );

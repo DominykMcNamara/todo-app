@@ -1,18 +1,15 @@
-import React, {
-  useEffect,
-  useContext,
-  useState,
-  useInsertionEffect,
-} from "react";
-
+import React, { useEffect, useContext } from "react";
+import { Box } from "@mui/system";
+import { Typography } from "@mui/material";
+import { useTheme } from "@mui/material";
 import TodoApi from "../apis/Todo.api";
 import { TodoContext } from "../context/TodoContext";
 
 export const Counter = (props) => {
   const { numberOfIncompletedTodos, setNumberOfIncompletedTodos } =
     useContext(TodoContext);
-
-  useInsertionEffect(() => {
+  const theme = useTheme();
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const inCompletedTodos = await TodoApi.get("/completed");
@@ -25,5 +22,11 @@ export const Counter = (props) => {
     };
     fetchData();
   });
-  return <div>{numberOfIncompletedTodos} Items left</div>;
+  return (
+    <Box>
+      <Typography color={theme.palette.secondary.main}>
+        {numberOfIncompletedTodos} Items left
+      </Typography>
+    </Box>
+  );
 };

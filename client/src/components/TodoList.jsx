@@ -1,44 +1,31 @@
 import React, { useEffect, useContext, useState } from "react";
 import { TodoContext } from "../context/TodoContext";
-import { Box } from "@mui/system";
 import List from "@mui/material/List";
+import { Box } from "@mui/material";
 import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
-import ListItemIcon from "@mui/material/ListItemIcon";
+import { useTheme } from "@mui/material";
 import Divider from "@mui/material/Divider";
 import { Counter } from "./Counter";
-
+import { TodoItem } from "./TodoItem";
 import TodoApi from "../apis/Todo.api";
-import { CompleteTodoButton } from "./CompleteTodoButton";
+import { Typography } from "@mui/material";
+import { Filter } from "./Filter";
 
 export const TodoList = (props) => {
-  const { todos, setTodos } = useContext(TodoContext);
-  const [completed, setCompleted] = useState(false);
-  const [mode, setMode] = useState("all");
+  const { todos, setTodos, filter } = useContext(TodoContext);
+  const theme = useTheme();
+
   useEffect(() => {
     const fetchTodos = async () => {
-      if (mode === 'all') {
-        try {
-          const todoList = await TodoApi.get("/");
-          setTodos(todoList.data.data.todos);
-        } catch (err) {
-          console.log(err);
-        }
+      try {
+        const todoList = await TodoApi.get("/");
+        setTodos(todoList.data.data.todos);
+      } catch (err) {
+        console.log(err);
       }
     };
     fetchTodos();
-  });
-
-  const handleComplete = async (e, id) => {
-    e.preventDefault();
-    setCompleted(true);
-    try {
-      await TodoApi.put(`/${id}`);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  }, [todos, setTodos]);
 
   const handleDeleteCompleted = async (e) => {
     e.preventDefault();
@@ -52,105 +39,99 @@ export const TodoList = (props) => {
   return (
     <List
       sx={{
-        width: "540px",
         margin: "30px auto",
-        borderRadius: "50px",
-        borderColor: "#979797",
-        backgroundColor: "#ffffff",
+        borderRadius: "5px",
+        borderColor: theme.palette.info.main,
+        backgroundColor: theme.palette.common.white,
+        boxShadow: `0px 35px 50px -15px ${theme.palette.warning.main}`
+
       }}
     >
+      {todos.length === 0 && (
+        <Typography
+          color={theme.palette.error.main}
+          textAlign={"center"}
+          sx={{ fontStyle: "bold" }}
+        >
+          Please enter a todo to begin
+        </Typography>
+      )}
       {todos &&
+        filter === "all" &&
         todos.map((todo) => {
           return (
             <>
               <ListItem key={todo.id}>
-                <ListItemButton
-                  onClick={(e) => handleComplete(e, todo.id)}
-                  disableRipple
-                  role={undefined}
-                  dense
-                >
-                  <ListItemIcon>
-                    <CompleteTodoButton completed={completed} />
-                  </ListItemIcon>
-                  <ListItemText
-                    sx={{
-                      textDecoration: todo.completed ? "line-through" : "none",
-                    }}
-                  >
-                    {todo.description}
-                  </ListItemText>
-                </ListItemButton>
+                <TodoItem todo={todo} />
               </ListItem>
-
               <Divider />
             </>
           );
         })}
-      <ListItem
+
+      {todos &&
+        filter === "active" &&
+        todos.map((todo) => {
+          if (todo.completed !== true) {
+            return (
+              <>
+                <ListItem key={todo.id}>
+                  <TodoItem todo={todo} />
+                </ListItem>
+                <Divider />
+              </>
+            );
+          }
+        })}
+
+      {todos &&
+        filter === "completed" &&
+        todos.map((todo) => {
+          if (todo.completed === true) {
+            return (
+              <>
+                <ListItem key={todo.id}>
+                  <TodoItem todo={todo} />
+                </ListItem>
+                <Divider />
+              </>
+            );
+          }
+        })}
+      <Box
         sx={{
+          paddingLeft: "24px",
+          paddingRight: "24px",
+          paddingTop: "14px",
+          paddingBottom: "14px",
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
-          color: "#9495A5",
+          color: theme.palette.secondary.main,
           "&:hover": {
             cursor: "pointer",
           },
         }}
       >
-        <ListItem>
+        <Box>
           <Counter />
-        </ListItem>
-        <ListItem
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-around",
-          }}
-        >
-          <ListItemText
-            sx={{
-              marginRight: "10px",
-              "&:hover": {
-                color: "#3A7CFD",
-              },
-            }}
-          >
-            All{" "}
-          </ListItemText>
-          <ListItemText
-            sx={{
-              marginRight: "10px",
-              "&:hover": {
-                color: "#3A7CFD",
-              },
-            }}
-          >
-            Active
-          </ListItemText>
-          <ListItemText
+        </Box>
+        <Box>
+          <Filter />
+        </Box>
+        <Box>
+          <Typography
             sx={{
               "&:hover": {
-                color: "#3A7CFD",
-              },
-            }}
-          >
-            Completed
-          </ListItemText>
-        </ListItem>
-        <ListItem>
-          <ListItemText
-            sx={{
-              "&:hover": {
-                color: "#3A7CFD",
+                color: theme.palette.action.main,
               },
             }}
             onClick={(e) => handleDeleteCompleted(e)}
           >
             Clear Completed
-          </ListItemText>
-        </ListItem>
-      </ListItem>
+          </Typography>
+        </Box>
+      </Box>
     </List>
   );
 };
